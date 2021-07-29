@@ -20,6 +20,7 @@ public class EmployeeController {
 	
 	@Autowired
 	private EmployeeService employeeService;
+	private int count=0;
 	
 	// display list of employees
 	@GetMapping("/")
@@ -32,6 +33,7 @@ public class EmployeeController {
 		// create model attribute to bind form data
 		Employee employee = new Employee();
 		model.addAttribute("employee", employee);
+		count++;
 		return "new_employee";
 	}
 	
@@ -44,6 +46,7 @@ public class EmployeeController {
 	@PostMapping("/saveEmployee")
 	public String saveEmployee(@ModelAttribute("employee") Employee employee) {
 		// save employee to database
+		count++;
 		employeeService.saveEmployee(employee);
 		return "redirect:/";
 	}
@@ -53,7 +56,7 @@ public class EmployeeController {
 		
 		// get employee from the service
 		Employee employee = employeeService.getEmployeeById(id);
-		
+		count++;
 		// set employee as a model attribute to pre-populate the form
 		model.addAttribute("employee", employee);
 		return "update_employee";
@@ -61,7 +64,7 @@ public class EmployeeController {
 	
 	@GetMapping("/deleteEmployee/{id}")
 	public String deleteEmployee(@PathVariable (value = "id") long id) {
-		
+		count++;
 		// call delete employee method 
 		this.employeeService.deleteEmployeeById(id);
 		return "redirect:/";
@@ -74,7 +77,7 @@ public class EmployeeController {
 			@RequestParam("sortDir") String sortDir,
 			Model model) {
 		int pageSize = 5;
-		
+		count+=1;
 		Page<Employee> page = employeeService.findPaginated(pageNo, pageSize, sortField, sortDir);
 		List<Employee> listEmployees = page.getContent();
 		
@@ -85,7 +88,14 @@ public class EmployeeController {
 		model.addAttribute("sortField", sortField);
 		model.addAttribute("sortDir", sortDir);
 		model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
-		
+		if(count==1)
+		{
+			
+			Employee e=new Employee();
+			e.setId(1);e.setDepartment("HR");e.setDesignation("Developer");e.setEmail("awanesh@gmail.com");
+			e.setFirstName("Awasa");e.setLastName("Nohara");
+			employeeService.saveEmployee(e);
+		}
 		model.addAttribute("listEmployees", listEmployees);
 		return "index";
 	}
@@ -97,7 +107,7 @@ public class EmployeeController {
 		String sortDir="asc";
 		Page<Employee> page = employeeService.findPaginated(pageNo, pageSize, sortField, sortDir);
 		List<Employee> listEmployees = page.getContent();
-		
+		count++;
 		model.addAttribute("currentPage", pageNo);
 		model.addAttribute("totalPages", page.getTotalPages());
 		model.addAttribute("totalItems", page.getTotalElements());
